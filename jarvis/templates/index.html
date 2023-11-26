@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jarvis Web App</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: white;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jarvis Web App</h1>
+
+    <div id="response"></div>
+
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.lang = 'en-US';
+
+        // Variable to check if Jarvis is listening for a command
+        let isListening = false;
+
+        recognition.onresult = (event) => {
+            const last = event.results.length - 1;
+            const transcript = event.results[last][0].transcript;
+
+            // If Jarvis is listening, check for the wake word
+            if (isListening) {
+                document.getElementById('response').textContent = `Jarvis says: Yes, Sir. You said, "${transcript}"`;
+                speak(`Yes, Sir. You said, "${transcript}"`);
+                // Stop listening after responding
+                isListening = false;
+            } else {
+                // If the wake word is detected, start listening for the command
+                if (transcript.toLowerCase().includes('jarvis')) {
+                    document.getElementById('response').textContent = "Jarvis is listening...";
+                    isListening = true;
+
+                    // Delay for 3 seconds to give Jarvis time to respond and then listen again
+                    setTimeout(() => {
+                        recognition.start();
+                    }, 3000);
+                }
+            }
+        };
+
+        function speak(message) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(message);
+            synth.speak(utterance);
+        }
+
+        recognition.start();
+    </script>
+</body>
+</html>
